@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>みさフェス 写真・メッセージ投稿</title>
+<style>
+  :root{
+    --lantern: #ff6b35;
+    --lantern-soft: #e8502a;
+    --gold: #c98a12;
+    --paper: #ffffff;
+    --ink: #4a2e14;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{ background:#ffe6c2 !important; color-scheme:light; }
+  body{
+    min-height:100vh;
+    background-color:#ffe6c2 !important;
+    background-image:
+      radial-gradient(circle at 12% 8%, rgba(255,107,53,0.20), transparent 50%),
+      radial-gradient(circle at 88% 15%, rgba(201,138,18,0.18), transparent 50%),
+      radial-gradient(circle at 50% 95%, rgba(255,107,53,0.14), transparent 55%);
+    font-family:"Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
+    color:#4a2e14 !important;
+  }
+  .wrap{ max-width:520px; margin:0 auto; padding:28px 18px 60px; }
+  .eyebrow{ color:var(--lantern-soft); letter-spacing:0.3em; font-size:11px; text-align:center; margin-bottom:8px; font-weight:600; }
+  h1{ text-align:center; font-size:24px; margin-bottom:6px; color:#3a2410; }
+  .sub{ text-align:center; font-size:12.5px; color:rgba(74,46,20,0.75); margin-bottom:22px; line-height:1.7; }
+
+  .card{
+    background:rgba(255,255,255,0.78);
+    border:1px solid rgba(255,107,53,0.25);
+    box-shadow:0 6px 20px rgba(201,138,18,0.1);
+    border-radius:18px;
+    padding:20px;
+    margin-bottom:18px;
+  }
+  .card h2{ font-size:14px; color:var(--lantern-soft); margin-bottom:10px; font-weight:700; }
+  .card .note{ font-size:11.5px; color:rgba(74,46,20,0.65); margin-bottom:14px; line-height:1.7; }
+
+  textarea, input[type=text]{
+    width:100%;
+    padding:12px 14px;
+    background:rgba(255,255,255,0.9);
+    border:1px solid rgba(74,46,20,0.18);
+    border-radius:10px;
+    color:var(--ink);
+    font-size:14px;
+    font-family:inherit;
+    margin-bottom:6px;
+  }
+  textarea{ min-height:90px; resize:vertical; }
+  textarea:focus, input[type=text]:focus{ outline:none; border-color:var(--lantern); }
+
+  .photo-drop{
+    border:2px dashed rgba(255,107,53,0.4);
+    background:rgba(255,107,53,0.05);
+    border-radius:14px;
+    padding:22px 14px;
+    text-align:center;
+    cursor:pointer;
+    margin-bottom:8px;
+  }
+  .photo-drop:hover{ border-color:var(--lantern); background:rgba(255,107,53,0.09); }
+  .photo-drop .big{ color:var(--lantern-soft); font-size:14px; margin-bottom:4px; font-weight:600; }
+  .photo-drop .small{ color:rgba(74,46,20,0.5); font-size:11.5px; }
+  input[type=file]{ display:none; }
+  .preview-wrap{ display:none; margin-bottom:10px; text-align:center; }
+  .preview-wrap.show{ display:block; }
+  .preview-wrap img{ max-width:100%; max-height:220px; border-radius:10px; box-shadow:0 4px 14px rgba(74,46,20,0.18); }
+  .preview-wrap .remove-photo{
+    display:inline-block; margin-top:8px;
+    font-size:12px; color:var(--lantern-soft); cursor:pointer;
+    text-decoration:underline;
+  }
+
+  .consent-row{
+    display:flex; align-items:flex-start; gap:10px;
+    margin-top:6px; margin-bottom:16px;
+  }
+  .consent-row input{ margin-top:3px; flex-shrink:0; }
+  .consent-row label{ font-size:12px; color:rgba(74,46,20,0.75); line-height:1.6; }
+
+  #submit-btn{
+    width:100%;
+    padding:15px;
+    background:linear-gradient(135deg, #ff8a4c, var(--lantern-soft));
+    color:#fff8f0;
+    border:none;
+    box-shadow:0 8px 22px rgba(255,107,53,0.35);
+    border-radius:12px;
+    font-size:15px;
+    font-weight:700;
+    letter-spacing:0.03em;
+    cursor:pointer;
+  }
+  #submit-btn:disabled{ opacity:0.4; cursor:not-allowed; box-shadow:none; }
+
+  .status-line{
+    font-size:12.5px;
+    text-align:center;
+    margin-top:12px;
+    min-height:16px;
+    color:rgba(74,46,20,0.7);
+  }
+  .status-line.error{ color:var(--lantern-soft); font-weight:600; }
+  .status-line.success{ color:var(--gold); font-weight:600; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">🏮 みさフェス</div>
+  <h1>写真・メッセージ投稿</h1>
+  <div class="sub">
+    みさフェスにご参加いただきありがとうございます。<br>
+    当日の思い出を、ひとことメッセージや写真で募集しています。
+  </div>
+
+  <div class="card">
+    <h2>参加の仕方(どれでもOKです)</h2>
+    <div class="note">
+      ・感想やひとことメッセージを送る<br>
+      ・当日撮影した写真を送る<br><br>
+      写真がなくても、メッセージだけの参加も歓迎です。<br>
+      写真つきの投稿は写真とメッセージがセットで、メッセージだけの投稿はお知らせとして、それぞれ会場スクリーンに流れます。
+    </div>
+
+    <h2>感想・メッセージ(任意)</h2>
+    <textarea id="message-input" placeholder="例:楽しかったです!来年も来ます"></textarea>
+
+
+    <h2 style="margin-top:16px;">写真(任意)</h2>
+    <div class="photo-drop" id="photo-drop">
+      <div class="big">📷 タップして写真を選ぶ</div>
+      <div class="small">スマホのカメラロールから選択できます</div>
+    </div>
+    <input type="file" id="photo-input" accept="image/*">
+    <div class="preview-wrap" id="preview-wrap">
+      <img id="preview-img" src="">
+      <div class="remove-photo" id="remove-photo">この写真を取り消す</div>
+    </div>
+
+    <div class="consent-row">
+      <input type="checkbox" id="consent-input">
+      <label for="consent-input">来年以降もこの写真を町内会の上映・広報等で使用してもよい</label>
+    </div>
+
+    <button id="submit-btn">送信する</button>
+    <div class="status-line" id="status-line"></div>
+  </div>
+
+  <div class="card">
+    <h2>撮影・投稿にあたってのお願い</h2>
+    <div class="note">
+      写っている方のプライバシーに配慮し、ご本人・保護者の了承が得られていない第三者が
+      大きく写り込んだ写真は、投稿をお控えください。<br><br>
+      担当者がチェックし、明らかにカメラ目線ではない第三者がはっきりと映っていると
+      考えられる写真は、こちらの判断で掲載を控えさせていただく場合がございます。
+    </div>
+  </div>
+</div>
+
+<script>
+// ▼ Google Apps Script(ウェブアプリ)のURL ▼
+const SUBMIT_URL = "https://script.google.com/macros/s/AKfycbzu8iWmrG1pRTN1JBiDFLdvfIDtckPsrRD2fT6vkNHunHJi2Nexo_KIvjveO5r7xP_ixw/exec";
+
+const messageInput = document.getElementById('message-input');
+const photoDrop = document.getElementById('photo-drop');
+const photoInput = document.getElementById('photo-input');
+const previewWrap = document.getElementById('preview-wrap');
+const previewImg = document.getElementById('preview-img');
+const removePhoto = document.getElementById('remove-photo');
+const consentInput = document.getElementById('consent-input');
+const submitBtn = document.getElementById('submit-btn');
+const statusLine = document.getElementById('status-line');
+
+let photoDataUrl = null; // リサイズ後のdata URL(base64)
+let photoFileName = 'photo.jpg';
+
+photoDrop.addEventListener('click', () => photoInput.click());
+
+photoInput.addEventListener('change', () => {
+  const file = photoInput.files[0];
+  if(!file) return;
+  photoFileName = file.name || 'photo.jpg';
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      // 横1600pxを上限にリサイズし、JPEGで圧縮してデータ量を抑える
+      const MAX_W = 1600;
+      let w = img.width, h = img.height;
+      if(w > MAX_W){
+        h = Math.round(h * (MAX_W / w));
+        w = MAX_W;
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+      photoDataUrl = canvas.toDataURL('image/jpeg', 0.82);
+
+      previewImg.src = photoDataUrl;
+      previewWrap.classList.add('show');
+      updateSubmitBtn();
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+removePhoto.addEventListener('click', () => {
+  photoDataUrl = null;
+  photoInput.value = '';
+  previewWrap.classList.remove('show');
+  updateSubmitBtn();
+});
+
+function updateSubmitBtn(){
+  const hasMessage = messageInput.value.trim().length > 0;
+  const hasPhoto = !!photoDataUrl;
+  submitBtn.disabled = !(hasMessage || hasPhoto);
+}
+messageInput.addEventListener('input', updateSubmitBtn);
+updateSubmitBtn();
+
+submitBtn.addEventListener('click', async () => {
+  const message = messageInput.value.trim();
+  if(!message && !photoDataUrl) return;
+
+  submitBtn.disabled = true;
+  statusLine.classList.remove('error', 'success');
+  statusLine.textContent = '送信中...';
+
+  let photoBase64 = null;
+  if(photoDataUrl){
+    // data:image/jpeg;base64,xxxx... の「xxxx...」部分だけ取り出す
+    photoBase64 = photoDataUrl.split(',')[1];
+  }
+
+  try{
+    await fetch(SUBMIT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({
+        message: message,
+        photoBase64: photoBase64,
+        photoName: photoFileName,
+        photoType: 'image/jpeg',
+        consent: consentInput.checked
+      })
+    });
+    statusLine.textContent = '送信しました。ありがとうございます!';
+    statusLine.classList.add('success');
+    messageInput.value = '';
+    photoDataUrl = null;
+    photoInput.value = '';
+    previewWrap.classList.remove('show');
+    consentInput.checked = false;
+  }catch(err){
+    statusLine.textContent = '送信に失敗しました。もう一度お試しください';
+    statusLine.classList.add('error');
+  }
+  updateSubmitBtn();
+});
+</script>
+</body>
+</html>
