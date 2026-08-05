@@ -224,6 +224,7 @@
       <input type="checkbox" id="gallery-consent-input" disabled>
       <label for="gallery-consent-input">この写真を、後日一般公開する閲覧用ギャラリーに載せてもよい</label>
     </div>
+    <div class="note" style="margin-top:-6px; margin-bottom:12px; font-size:11px;">※上のチェックを入れると送信できるようになります</div>
 
     <button id="gallery-submit-btn" disabled>この写真をギャラリーに送信する</button>
     <div class="status-line" id="gallery-status-line"></div>
@@ -342,10 +343,11 @@ function updateSubmitBtn(){
 messageInput.addEventListener('input', updateSubmitBtn);
 updateSubmitBtn();
 
-// ギャラリー用:写真が選ばれていれば送信できる
+// ギャラリー用:写真が選ばれ、かつ同意チェックが入っていれば送信できる
 function updateGallerySubmitBtn(){
-  gallerySubmitBtn.disabled = !galleryPhotoDataUrl;
+  gallerySubmitBtn.disabled = !(galleryPhotoDataUrl && galleryConsentInput.checked);
 }
+galleryConsentInput.addEventListener('change', updateGallerySubmitBtn);
 updateGallerySubmitBtn();
 
 // ---------- スクリーン用の送信 ----------
