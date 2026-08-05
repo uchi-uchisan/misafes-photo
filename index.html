@@ -4,75 +4,103 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>みさフェス 写真・メッセージ投稿</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=RocknRoll+One&family=Zen+Kaku+Gothic+New:wght@500;700;900&display=swap" rel="stylesheet">
 <style>
   :root{
-    --lantern: #ff6b35;
-    --lantern-soft: #e8502a;
-    --gold: #c98a12;
-    --paper: #ffffff;
-    --ink: #4a2e14;
+    --indigo-deep: #16213e;
+    --indigo-mid: #24345c;
+    --gold: #ffffff;
+    --gold-deep: #a3801c;
+    --alert: #b5624f;
+    --paper: #f7f2e6;
+    --ink: #22242a;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
-  html{ background:#ffe6c2 !important; color-scheme:light; }
+  html{ background:var(--indigo-deep) !important; color-scheme:light; }
   body{
     min-height:100vh;
-    background-color:#ffe6c2 !important;
+    background:var(--indigo-deep) !important;
     background-image:
-      radial-gradient(circle at 12% 8%, rgba(255,107,53,0.20), transparent 50%),
-      radial-gradient(circle at 88% 15%, rgba(201,138,18,0.18), transparent 50%),
-      radial-gradient(circle at 50% 95%, rgba(255,107,53,0.14), transparent 55%);
-    font-family:"Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
-    color:#4a2e14 !important;
+      repeating-radial-gradient(circle at 0 0, transparent 0, transparent 26px, rgba(201,162,39,0.05) 27px, transparent 28px) !important;
+    background-size:52px 52px;
+    font-family:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",sans-serif;
+    color:var(--ink) !important;
   }
-  .wrap{ max-width:520px; margin:0 auto; padding:28px 18px 60px; }
-  .eyebrow{ color:var(--lantern-soft); letter-spacing:0.3em; font-size:11px; text-align:center; margin-bottom:8px; font-weight:600; }
-  h1{ text-align:center; font-size:24px; margin-bottom:6px; color:#3a2410; }
-  .sub{ text-align:center; font-size:12.5px; color:rgba(74,46,20,0.75); margin-bottom:22px; line-height:1.7; }
+
+  .noren{
+    position:relative;
+    background:var(--gold);
+    padding:34px 0 6px;
+    text-align:center;
+  }
+  .noren-wave{
+    display:block;
+    width:100%;
+    height:40px;
+    margin-top:-1px;
+  }
+  .noren-inner{ padding:0 20px; }
+  .noren-eyebrow{
+    font-family:"RocknRoll One", sans-serif;
+    color:var(--indigo-deep);
+    font-size:12px;
+    letter-spacing:0.3em;
+    margin-bottom:8px;
+    opacity:0.6;
+  }
+  .noren h1{
+    font-family:"RocknRoll One", sans-serif;
+    color:var(--alert);
+    font-size:24px;
+    letter-spacing:0.06em;
+  }
+
+  .wrap{ max-width:520px; margin:0 auto; padding:0 18px 60px; }
+  .sub{ text-align:center; font-size:12.5px; color:rgba(247,242,230,0.65); margin:22px 0 22px; line-height:1.8; }
 
   .card{
-    background:rgba(255,255,255,0.78);
-    border:1px solid rgba(255,107,53,0.25);
-    box-shadow:0 6px 20px rgba(201,138,18,0.1);
-    border-radius:18px;
+    background:var(--paper);
+    border:2px solid var(--indigo-mid);
+    box-shadow:4px 4px 0 rgba(0,0,0,0.3);
     padding:20px;
-    margin-bottom:18px;
+    margin-bottom:20px;
   }
-  .card h2{ font-size:14px; color:var(--lantern-soft); margin-bottom:10px; font-weight:700; }
-  .card .note{ font-size:11.5px; color:rgba(74,46,20,0.65); margin-bottom:14px; line-height:1.7; }
+  .card h2{ font-family:"Zen Kaku Gothic New",sans-serif; font-size:14px; color:var(--gold-deep); margin-bottom:10px; font-weight:900; }
+  .card .note{ font-size:11.5px; color:rgba(34,36,42,0.68); margin-bottom:14px; line-height:1.7; }
 
   textarea, input[type=text]{
     width:100%;
     padding:12px 14px;
-    background:rgba(255,255,255,0.9);
-    border:1px solid rgba(74,46,20,0.18);
-    border-radius:10px;
+    background:#fff;
+    border:1.5px solid rgba(34,36,42,0.2);
     color:var(--ink);
     font-size:14px;
     font-family:inherit;
     margin-bottom:6px;
   }
   textarea{ min-height:90px; resize:vertical; }
-  textarea:focus, input[type=text]:focus{ outline:none; border-color:var(--lantern); }
+  textarea:focus, input[type=text]:focus{ outline:none; border-color:var(--gold-deep); }
 
   .photo-drop{
-    border:2px dashed rgba(255,107,53,0.4);
-    background:rgba(255,107,53,0.05);
-    border-radius:14px;
+    border:2px dashed var(--indigo-mid);
+    background:rgba(36,52,92,0.04);
     padding:22px 14px;
     text-align:center;
     cursor:pointer;
     margin-bottom:8px;
   }
-  .photo-drop:hover{ border-color:var(--lantern); background:rgba(255,107,53,0.09); }
-  .photo-drop .big{ color:var(--lantern-soft); font-size:14px; margin-bottom:4px; font-weight:600; }
-  .photo-drop .small{ color:rgba(74,46,20,0.5); font-size:11.5px; }
+  .photo-drop:hover{ border-color:var(--gold-deep); background:rgba(201,162,39,0.06); }
+  .photo-drop .big{ color:var(--gold-deep); font-size:14px; margin-bottom:4px; font-weight:700; }
+  .photo-drop .small{ color:rgba(34,36,42,0.5); font-size:11.5px; }
   input[type=file]{ display:none; }
   .preview-wrap{ display:none; margin-bottom:10px; text-align:center; }
   .preview-wrap.show{ display:block; }
-  .preview-wrap img{ max-width:100%; max-height:220px; border-radius:10px; box-shadow:0 4px 14px rgba(74,46,20,0.18); }
+  .preview-wrap img{ max-width:100%; max-height:220px; border:2px solid var(--indigo-mid); }
   .preview-wrap .remove-photo{
     display:inline-block; margin-top:8px;
-    font-size:12px; color:var(--lantern-soft); cursor:pointer;
+    font-size:12px; color:var(--gold-deep); cursor:pointer;
     text-decoration:underline;
   }
 
@@ -81,19 +109,20 @@
     margin-top:6px; margin-bottom:16px;
   }
   .consent-row input{ margin-top:3px; flex-shrink:0; }
-  .consent-row label{ font-size:12px; color:rgba(74,46,20,0.75); line-height:1.6; }
+  .consent-row label{ font-size:12px; color:rgba(34,36,42,0.75); line-height:1.6; }
+  .consent-row input:disabled + label{ opacity:0.4; }
 
   #submit-btn{
     width:100%;
     padding:15px;
-    background:linear-gradient(135deg, #ff8a4c, var(--lantern-soft));
-    color:#fff8f0;
-    border:none;
-    box-shadow:0 8px 22px rgba(255,107,53,0.35);
-    border-radius:12px;
+    background:var(--indigo-deep);
+    color:var(--gold);
+    border:2px solid var(--gold);
+    box-shadow:4px 4px 0 rgba(0,0,0,0.3);
+    font-family:"Zen Kaku Gothic New",sans-serif;
     font-size:15px;
-    font-weight:700;
-    letter-spacing:0.03em;
+    font-weight:900;
+    letter-spacing:0.05em;
     cursor:pointer;
   }
   #submit-btn:disabled{ opacity:0.4; cursor:not-allowed; box-shadow:none; }
@@ -103,16 +132,24 @@
     text-align:center;
     margin-top:12px;
     min-height:16px;
-    color:rgba(74,46,20,0.7);
+    color:rgba(247,242,230,0.75);
   }
-  .status-line.error{ color:var(--lantern-soft); font-weight:600; }
-  .status-line.success{ color:var(--gold); font-weight:600; }
+  .status-line.error{ color:var(--alert); font-weight:700; }
+  .status-line.success{ color:var(--gold); font-weight:700; }
 </style>
 </head>
 <body>
+<div class="noren">
+  <div class="noren-inner">
+    <div class="noren-eyebrow">みさフェス</div>
+    <h1>写真・メッセージ投稿</h1>
+  </div>
+</div>
+<svg class="noren-wave" viewBox="0 0 800 40" preserveAspectRatio="none">
+  <path fill="#ffffff" d="M0,20.0 Q 20.0,4 40,20.0 Q 60.0,36 80,20.0 Q 100.0,4 120,20.0 Q 140.0,36 160,20.0 Q 180.0,4 200,20.0 Q 220.0,36 240,20.0 Q 260.0,4 280,20.0 Q 300.0,36 320,20.0 Q 340.0,4 360,20.0 Q 380.0,36 400,20.0 Q 420.0,4 440,20.0 Q 460.0,36 480,20.0 Q 500.0,4 520,20.0 Q 540.0,36 560,20.0 Q 580.0,4 600,20.0 Q 620.0,36 640,20.0 Q 660.0,4 680,20.0 Q 700.0,36 720,20.0 Q 740.0,4 760,20.0 Q 780.0,36 800,20.0 L800,40 L0,40 Z"/>
+</svg>
+
 <div class="wrap">
-  <div class="eyebrow">🏮 みさフェス</div>
-  <h1>写真・メッセージ投稿</h1>
   <div class="sub">
     みさフェスにご参加いただきありがとうございます。<br>
     当日の思い出を、ひとことメッセージや写真で募集しています。
@@ -124,7 +161,8 @@
       ・感想やひとことメッセージを送る<br>
       ・当日撮影した写真を送る<br><br>
       写真がなくても、メッセージだけの参加も歓迎です。<br>
-      写真つきの投稿は写真とメッセージがセットで、メッセージだけの投稿はお知らせとして、それぞれ会場スクリーンに流れます。
+      写真つきの投稿は写真とメッセージがセットで、メッセージだけの投稿はお知らせとして、それぞれ会場スクリーンに流れます。<br><br>
+      当日その場で送れなくても大丈夫です。電波の都合などで難しければ、<b style="color:var(--gold-deep);">お家に帰ってからの投稿も歓迎</b>です!(イベントが終わるまでの間であれば、会場のスクリーンにきちんと映ります。ただし、その瞬間をご本人が見ることはできない点だけご了承ください)
     </div>
 
     <h2>感想・メッセージ(任意)</h2>
@@ -142,24 +180,60 @@
       <div class="remove-photo" id="remove-photo">この写真を取り消す</div>
     </div>
 
-    <div class="consent-row">
-      <input type="checkbox" id="consent-input">
-      <label for="consent-input">来年以降もこの写真を町内会の上映・広報等で使用してもよい</label>
-    </div>
-
-    <button id="submit-btn">送信する</button>
-    <div class="status-line" id="status-line"></div>
-  </div>
-
-  <div class="card">
-    <h2>撮影・投稿にあたってのお願い</h2>
-    <div class="note">
+    <div class="note" style="margin-top:10px;">
+      <b>撮影・投稿にあたってのお願い</b><br>
       写っている方のプライバシーに配慮し、ご本人・保護者の了承が得られていない第三者が
       大きく写り込んだ写真は、投稿をお控えください。<br><br>
       担当者がチェックし、明らかにカメラ目線ではない第三者がはっきりと映っていると
       考えられる写真は、こちらの判断で掲載を控えさせていただく場合がございます。<br><br>
-      メッセージが不適切だと判断される場合は、掲載を控えさせていただきます。
+      メッセージが不適切だと判断される場合は、掲載を控えさせていただきます。<br><br>
+      反映まで少しお時間をいただく場合がございます。しばらく経っても画面に映らないようであれば、内容を見直して再度お送りください。
     </div>
+
+    <div class="consent-row">
+      <input type="checkbox" id="consent-input">
+      <label for="consent-input">来年以降もこの写真を町内会の上映・広報等で使用してもよい</label>
+    </div>
+  </div>
+
+  <div class="card" style="background:#fbf7ec; border-color:var(--indigo-deep);">
+    <h2>閲覧用ギャラリー用の写真(任意)</h2>
+    <div class="note">
+      上の写真とは<b style="color:var(--gold-deep);">別に</b>、後日どなたでも自由に見られる公開ギャラリー専用の写真を、ご希望の方だけアップロードしてください。<br>
+      <span style="font-weight:600;">
+        ※人物が一切写っていない写真にしてください(例:食べ物、出店、灯籠など)。<br>
+        顔が写っていなくても、体型・服装・背景の状況などから個人が特定できてしまう写真、遠くに小さく人が写っている写真も、公開の対象外とさせていただきます。
+      </span>
+    </div>
+    <div class="photo-drop" id="gallery-photo-drop">
+      <div class="big">📷 タップして写真を選ぶ</div>
+      <div class="small">人物が写っていない写真をお選びください</div>
+    </div>
+    <input type="file" id="gallery-photo-input" accept="image/*">
+    <div class="preview-wrap" id="gallery-preview-wrap">
+      <img id="gallery-preview-img" src="">
+      <div class="remove-photo" id="gallery-remove-photo">この写真を取り消す</div>
+    </div>
+
+    <div class="consent-row">
+      <input type="checkbox" id="gallery-consent-input" disabled>
+      <label for="gallery-consent-input">この写真を、後日一般公開する閲覧用ギャラリーに載せてもよい</label>
+    </div>
+  </div>
+
+  <div class="card">
+    <button id="submit-btn">送信する</button>
+    <div class="status-line" id="status-line"></div>
+  </div>
+
+  <div class="card" style="text-align:center;">
+    <h2 style="margin-bottom:8px;">みんなの投稿を見る</h2>
+    <div class="note" style="margin-bottom:14px;">
+      公開OKの写真を集めた、閲覧用のフォトギャラリーです。お祭りが終わった後もご覧いただけます。
+    </div>
+    <a href="https://uchi-uchisan.github.io/misafes-gallery/" style="display:inline-block; padding:12px 28px; background:var(--indigo-deep); color:var(--gold); border:2px solid var(--gold); font-weight:900; font-family:'Zen Kaku Gothic New',sans-serif; text-decoration:none; font-size:13.5px;">
+      フォトギャラリーを見る →
+    </a>
   </div>
 </div>
 
@@ -174,24 +248,26 @@ const previewWrap = document.getElementById('preview-wrap');
 const previewImg = document.getElementById('preview-img');
 const removePhoto = document.getElementById('remove-photo');
 const consentInput = document.getElementById('consent-input');
+const galleryPhotoDrop = document.getElementById('gallery-photo-drop');
+const galleryPhotoInput = document.getElementById('gallery-photo-input');
+const galleryPreviewWrap = document.getElementById('gallery-preview-wrap');
+const galleryPreviewImg = document.getElementById('gallery-preview-img');
+const galleryRemovePhoto = document.getElementById('gallery-remove-photo');
+const galleryConsentInput = document.getElementById('gallery-consent-input');
 const submitBtn = document.getElementById('submit-btn');
 const statusLine = document.getElementById('status-line');
 
 let photoDataUrl = null; // リサイズ後のdata URL(base64)
 let photoFileName = 'photo.jpg';
+let galleryPhotoDataUrl = null;
+let galleryPhotoFileName = 'gallery.jpg';
 
-photoDrop.addEventListener('click', () => photoInput.click());
-
-photoInput.addEventListener('change', () => {
-  const file = photoInput.files[0];
-  if(!file) return;
-  photoFileName = file.name || 'photo.jpg';
-
+// 画像をリサイズ・圧縮してdata URLを返す共通処理
+function resizeImageFile(file, onDone){
   const reader = new FileReader();
   reader.onload = (e) => {
     const img = new Image();
     img.onload = () => {
-      // 横1600pxを上限にリサイズし、JPEGで圧縮してデータ量を抑える
       const MAX_W = 1600;
       let w = img.width, h = img.height;
       if(w > MAX_W){
@@ -203,22 +279,51 @@ photoInput.addEventListener('change', () => {
       canvas.height = h;
       const ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0, w, h);
-      photoDataUrl = canvas.toDataURL('image/jpeg', 0.82);
-
-      previewImg.src = photoDataUrl;
-      previewWrap.classList.add('show');
-      updateSubmitBtn();
+      onDone(canvas.toDataURL('image/jpeg', 0.82));
     };
     img.src = e.target.result;
   };
   reader.readAsDataURL(file);
-});
+}
 
+photoDrop.addEventListener('click', () => photoInput.click());
+photoInput.addEventListener('change', () => {
+  const file = photoInput.files[0];
+  if(!file) return;
+  photoFileName = file.name || 'photo.jpg';
+  resizeImageFile(file, dataUrl => {
+    photoDataUrl = dataUrl;
+    previewImg.src = photoDataUrl;
+    previewWrap.classList.add('show');
+    updateSubmitBtn();
+  });
+});
 removePhoto.addEventListener('click', () => {
   photoDataUrl = null;
   photoInput.value = '';
   previewWrap.classList.remove('show');
   updateSubmitBtn();
+});
+
+// ギャラリー用写真(会場スクリーン用とは別の、独立した写真)
+galleryPhotoDrop.addEventListener('click', () => galleryPhotoInput.click());
+galleryPhotoInput.addEventListener('change', () => {
+  const file = galleryPhotoInput.files[0];
+  if(!file) return;
+  galleryPhotoFileName = file.name || 'gallery.jpg';
+  resizeImageFile(file, dataUrl => {
+    galleryPhotoDataUrl = dataUrl;
+    galleryPreviewImg.src = galleryPhotoDataUrl;
+    galleryPreviewWrap.classList.add('show');
+    galleryConsentInput.disabled = false;
+  });
+});
+galleryRemovePhoto.addEventListener('click', () => {
+  galleryPhotoDataUrl = null;
+  galleryPhotoInput.value = '';
+  galleryPreviewWrap.classList.remove('show');
+  galleryConsentInput.checked = false;
+  galleryConsentInput.disabled = true;
 });
 
 function updateSubmitBtn(){
@@ -237,11 +342,8 @@ submitBtn.addEventListener('click', async () => {
   statusLine.classList.remove('error', 'success');
   statusLine.textContent = '送信中...';
 
-  let photoBase64 = null;
-  if(photoDataUrl){
-    // data:image/jpeg;base64,xxxx... の「xxxx...」部分だけ取り出す
-    photoBase64 = photoDataUrl.split(',')[1];
-  }
+  const photoBase64 = photoDataUrl ? photoDataUrl.split(',')[1] : null;
+  const galleryPhotoBase64 = galleryPhotoDataUrl ? galleryPhotoDataUrl.split(',')[1] : null;
 
   try{
     await fetch(SUBMIT_URL, {
@@ -253,7 +355,10 @@ submitBtn.addEventListener('click', async () => {
         photoBase64: photoBase64,
         photoName: photoFileName,
         photoType: 'image/jpeg',
-        consent: consentInput.checked
+        consent: consentInput.checked,
+        galleryPhotoBase64: galleryPhotoBase64,
+        galleryPhotoName: galleryPhotoFileName,
+        galleryConsent: galleryConsentInput.checked && !!galleryPhotoDataUrl
       })
     });
     statusLine.textContent = '送信しました。ありがとうございます!';
@@ -263,8 +368,13 @@ submitBtn.addEventListener('click', async () => {
     photoInput.value = '';
     previewWrap.classList.remove('show');
     consentInput.checked = false;
+    galleryPhotoDataUrl = null;
+    galleryPhotoInput.value = '';
+    galleryPreviewWrap.classList.remove('show');
+    galleryConsentInput.checked = false;
+    galleryConsentInput.disabled = true;
   }catch(err){
-    statusLine.textContent = '送信に失敗しました。もう一度お試しください';
+    statusLine.textContent = '送信に失敗しました。電波が混み合っている時は、少し時間を置いてからもう一度お試しください';
     statusLine.classList.add('error');
   }
   updateSubmitBtn();
