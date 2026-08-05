@@ -113,7 +113,7 @@
   .consent-row label{ font-size:12px; color:rgba(34,36,42,0.75); line-height:1.6; }
   .consent-row input:disabled + label{ opacity:0.4; }
 
-  #submit-btn{
+  #submit-btn, #gallery-submit-btn{
     width:100%;
     padding:15px;
     background:var(--indigo-deep);
@@ -125,8 +125,9 @@
     font-weight:900;
     letter-spacing:0.05em;
     cursor:pointer;
+    margin-top:16px;
   }
-  #submit-btn:disabled{ opacity:0.4; cursor:not-allowed; box-shadow:none; }
+  #submit-btn:disabled, #gallery-submit-btn:disabled{ opacity:0.4; cursor:not-allowed; box-shadow:none; }
 
   .status-line{
     font-size:12.5px;
@@ -195,6 +196,9 @@
       <input type="checkbox" id="consent-input">
       <label for="consent-input">来年以降もこの写真を町内会の上映・広報等で使用してもよい</label>
     </div>
+
+    <button id="submit-btn">この内容を送信する</button>
+    <div class="status-line" id="status-line"></div>
   </div>
 
   <div class="card" style="background:#fbf7ec; border-color:var(--indigo-deep);">
@@ -220,11 +224,9 @@
       <input type="checkbox" id="gallery-consent-input" disabled>
       <label for="gallery-consent-input">この写真を、後日一般公開する閲覧用ギャラリーに載せてもよい</label>
     </div>
-  </div>
 
-  <div class="card">
-    <button id="submit-btn">送信する</button>
-    <div class="status-line" id="status-line"></div>
+    <button id="gallery-submit-btn" disabled>この写真をギャラリーに送信する</button>
+    <div class="status-line" id="gallery-status-line"></div>
   </div>
 
   <div class="card" style="text-align:center;">
@@ -257,6 +259,8 @@ const galleryRemovePhoto = document.getElementById('gallery-remove-photo');
 const galleryConsentInput = document.getElementById('gallery-consent-input');
 const submitBtn = document.getElementById('submit-btn');
 const statusLine = document.getElementById('status-line');
+const gallerySubmitBtn = document.getElementById('gallery-submit-btn');
+const galleryStatusLine = document.getElementById('gallery-status-line');
 
 let photoDataUrl = null; // リサイズ後のdata URL(base64)
 let photoFileName = 'photo.jpg';
@@ -317,7 +321,7 @@ galleryPhotoInput.addEventListener('change', () => {
     galleryPreviewImg.src = galleryPhotoDataUrl;
     galleryPreviewWrap.classList.add('show');
     galleryConsentInput.disabled = false;
-    updateSubmitBtn();
+    updateGallerySubmitBtn();
   });
 });
 galleryRemovePhoto.addEventListener('click', () => {
@@ -326,29 +330,34 @@ galleryRemovePhoto.addEventListener('click', () => {
   galleryPreviewWrap.classList.remove('show');
   galleryConsentInput.checked = false;
   galleryConsentInput.disabled = true;
-  updateSubmitBtn();
+  updateGallerySubmitBtn();
 });
 
-// メッセージ・スクリーン用写真・ギャラリー用写真の「いずれか1つ」があれば送信できる
+// スクリーン用:メッセージ・写真のどちらかがあれば送信できる
 function updateSubmitBtn(){
   const hasMessage = messageInput.value.trim().length > 0;
   const hasPhoto = !!photoDataUrl;
-  const hasGalleryPhoto = !!galleryPhotoDataUrl;
-  submitBtn.disabled = !(hasMessage || hasPhoto || hasGalleryPhoto);
+  submitBtn.disabled = !(hasMessage || hasPhoto);
 }
 messageInput.addEventListener('input', updateSubmitBtn);
 updateSubmitBtn();
 
+// ギャラリー用:写真が選ばれていれば送信できる
+function updateGallerySubmitBtn(){
+  gallerySubmitBtn.disabled = !galleryPhotoDataUrl;
+}
+updateGallerySubmitBtn();
+
+// ---------- スクリーン用の送信 ----------
 submitBtn.addEventListener('click', async () => {
   const message = messageInput.value.trim();
-  if(!message && !photoDataUrl && !galleryPhotoDataUrl) return;
+  if(!message && !photoDataUrl) return;
 
   submitBtn.disabled = true;
   statusLine.classList.remove('error', 'success');
   statusLine.textContent = '送信中...';
 
   const photoBase64 = photoDataUrl ? photoDataUrl.split(',')[1] : null;
-  const galleryPhotoBase64 = galleryPhotoDataUrl ? galleryPhotoDataUrl.split(',')[1] : null;
 
   try{
     await fetch(SUBMIT_URL, {
@@ -360,10 +369,7 @@ submitBtn.addEventListener('click', async () => {
         photoBase64: photoBase64,
         photoName: photoFileName,
         photoType: 'image/jpeg',
-        consent: consentInput.checked,
-        galleryPhotoBase64: galleryPhotoBase64,
-        galleryPhotoName: galleryPhotoFileName,
-        galleryConsent: galleryConsentInput.checked && !!galleryPhotoDataUrl
+        consent: consentInput.checked
       })
     });
     statusLine.textContent = '送信しました。ありがとうございます!';
@@ -373,16 +379,46 @@ submitBtn.addEventListener('click', async () => {
     photoInput.value = '';
     previewWrap.classList.remove('show');
     consentInput.checked = false;
+  }catch(err){
+    statusLine.textContent = '送信に失敗しました。電波が混み合っている時は、少し時間を置いてからもう一度お試しください';
+    statusLine.classList.add('error');
+  }
+  updateSubmitBtn();
+});
+
+// ---------- ギャラリー用の送信(スクリーン用とは完全に独立) ----------
+gallerySubmitBtn.addEventListener('click', async () => {
+  if(!galleryPhotoDataUrl) return;
+
+  gallerySubmitBtn.disabled = true;
+  galleryStatusLine.classList.remove('error', 'success');
+  galleryStatusLine.textContent = '送信中...';
+
+  const galleryPhotoBase64 = galleryPhotoDataUrl.split(',')[1];
+
+  try{
+    await fetch(SUBMIT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({
+        galleryPhotoBase64: galleryPhotoBase64,
+        galleryPhotoName: galleryPhotoFileName,
+        galleryConsent: galleryConsentInput.checked && !!galleryPhotoDataUrl
+      })
+    });
+    galleryStatusLine.textContent = '送信しました。ありがとうございます!';
+    galleryStatusLine.classList.add('success');
     galleryPhotoDataUrl = null;
     galleryPhotoInput.value = '';
     galleryPreviewWrap.classList.remove('show');
     galleryConsentInput.checked = false;
     galleryConsentInput.disabled = true;
   }catch(err){
-    statusLine.textContent = '送信に失敗しました。電波が混み合っている時は、少し時間を置いてからもう一度お試しください';
-    statusLine.classList.add('error');
+    galleryStatusLine.textContent = '送信に失敗しました。電波が混み合っている時は、少し時間を置いてからもう一度お試しください';
+    galleryStatusLine.classList.add('error');
   }
-  updateSubmitBtn();
+  updateGallerySubmitBtn();
 });
 </script>
 </body>
