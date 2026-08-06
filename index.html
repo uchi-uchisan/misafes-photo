@@ -70,6 +70,59 @@
   }
   .card h2{ font-family:"Zen Kaku Gothic New",sans-serif; font-size:14px; color:var(--gold-deep); margin-bottom:10px; font-weight:900; }
   .card .note{ font-size:11.5px; color:rgba(34,36,42,0.68); margin-bottom:14px; line-height:1.7; }
+  .warn-box{
+    margin-top:14px;
+    padding:12px 14px;
+    background:rgba(181,98,79,0.08);
+    border:1.5px solid rgba(181,98,79,0.35);
+    font-size:11.5px;
+    color:rgba(34,36,42,0.75);
+    line-height:1.7;
+  }
+  .warn-box b{ color:var(--alert); }
+
+  .gallery-toggle{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:18px 20px;
+    cursor:pointer;
+    user-select:none;
+  }
+  .gallery-toggle-icon{
+    font-size:26px;
+    flex-shrink:0;
+    animation:gentle-bounce 2.2s ease-in-out infinite;
+  }
+  @keyframes gentle-bounce{
+    0%, 100%{ transform:translateY(0); }
+    50%{ transform:translateY(-4px); }
+  }
+  .gallery-toggle-text{ flex:1; }
+  .gallery-toggle-title{
+    font-family:"Zen Kaku Gothic New",sans-serif;
+    font-weight:900;
+    font-size:14px;
+    color:var(--gold-deep);
+    margin-bottom:3px;
+  }
+  .gallery-toggle-sub{
+    font-size:11px;
+    color:rgba(34,36,42,0.6);
+  }
+  .gallery-toggle-arrow{
+    font-size:13px;
+    color:var(--gold-deep);
+    flex-shrink:0;
+    transition:transform 0.25s;
+  }
+  .gallery-card.open .gallery-toggle-arrow{ transform:rotate(180deg); }
+  .gallery-content{
+    max-height:0;
+    overflow:hidden;
+    transition:max-height 0.35s ease;
+  }
+  .gallery-card.open .gallery-content{ max-height:2000px; }
 
   textarea, input[type=text]{
     width:100%;
@@ -182,7 +235,7 @@
       <div class="remove-photo" id="remove-photo">この写真を取り消す</div>
     </div>
 
-    <div class="note" style="margin-top:10px;">
+    <div class="warn-box">
       <b>撮影・投稿にあたってのお願い</b><br>
       写っている方のプライバシーに配慮し、ご本人・保護者の了承が得られていない第三者が
       大きく写り込んだ写真は、投稿をお控えください。<br><br>
@@ -201,38 +254,51 @@
     <div class="status-line" id="status-line"></div>
   </div>
 
-  <div class="card" style="background:#fbf7ec; border-color:var(--indigo-deep);">
-    <h2>閲覧用ギャラリー用の写真</h2>
-    <div class="note">
-      上の写真とは<b style="color:var(--gold-deep);">別に</b>、後日どなたでも自由に見られる公開ギャラリー専用の写真を、ご希望の方だけアップロードしてください。<br>
-      <span style="font-weight:600;">
-        ※人物が一切写っていない写真にしてください。<br>
-      </span>
-      <span style="display:inline-block; margin-top:8px; padding:8px 10px; background:rgba(163,128,28,0.1); border-radius:2px;">
-        OKな例:食べ物・屋台、提灯・お祭りの飾り付け、会場の景色、看板やポスターなど
-      </span><br><br>
-      <span style="font-weight:600;">
-        顔が写っていなくても、体型・服装・背景の状況などから個人が特定できてしまう写真、遠くに小さく人が写っている写真も、公開の対象外とさせていただきます。
-      </span>
-    </div>
-    <div class="photo-drop" id="gallery-photo-drop">
-      <div class="big">📷 タップして写真を選ぶ</div>
-      <div class="small">人物が写っていない写真をお選びください</div>
-    </div>
-    <input type="file" id="gallery-photo-input" accept="image/*">
-    <div class="preview-wrap" id="gallery-preview-wrap">
-      <img id="gallery-preview-img" src="">
-      <div class="remove-photo" id="gallery-remove-photo">この写真を取り消す</div>
+  <div class="card gallery-card" style="background:#fbf7ec; border-color:var(--indigo-deep); padding:0; overflow:hidden;">
+    <div class="gallery-toggle" id="gallery-toggle">
+      <div class="gallery-toggle-icon">📸</div>
+      <div class="gallery-toggle-text">
+        <div class="gallery-toggle-title">みんなの思い出をアルバムに残しませんか?</div>
+        <div class="gallery-toggle-sub">人物なしの写真限定・後日みんなで見られる公開ギャラリー用です</div>
+      </div>
+      <div class="gallery-toggle-arrow" id="gallery-toggle-arrow">▼</div>
     </div>
 
-    <div class="consent-row">
-      <input type="checkbox" id="gallery-consent-input" disabled>
-      <label for="gallery-consent-input">この写真を、後日一般公開する閲覧用ギャラリーに載せてもよい</label>
-    </div>
-    <div class="note" style="margin-top:-6px; margin-bottom:12px; font-size:11px;">※上のチェックを入れると送信できるようになります</div>
+    <div class="gallery-content" id="gallery-content">
+      <div style="padding:4px 20px 20px;">
+        <h2>閲覧用ギャラリー用の写真</h2>
+        <div class="note">
+          上の写真とは<b style="color:var(--gold-deep);">別に</b>、後日どなたでも自由に見られる公開ギャラリー専用の写真を、ご希望の方だけアップロードしてください。<br>
+          <span style="font-weight:600;">
+            ※人物が一切写っていない写真にしてください。<br>
+          </span>
+          <span style="display:inline-block; margin-top:8px; padding:8px 10px; background:rgba(163,128,28,0.1); border-radius:2px;">
+            OKな例:食べ物・屋台、提灯・お祭りの飾り付け、会場の景色、看板やポスターなど
+          </span><br><br>
+          <span style="font-weight:600;">
+            顔が写っていなくても、体型・服装・背景の状況などから個人が特定できてしまう写真、遠くに小さく人が写っている写真も、公開の対象外とさせていただきます。
+          </span>
+        </div>
+        <div class="photo-drop" id="gallery-photo-drop">
+          <div class="big">📷 タップして写真を選ぶ</div>
+          <div class="small">人物が写っていない写真をお選びください</div>
+        </div>
+        <input type="file" id="gallery-photo-input" accept="image/*">
+        <div class="preview-wrap" id="gallery-preview-wrap">
+          <img id="gallery-preview-img" src="">
+          <div class="remove-photo" id="gallery-remove-photo">この写真を取り消す</div>
+        </div>
 
-    <button id="gallery-submit-btn" disabled>この写真をギャラリーに送信する</button>
-    <div class="status-line" id="gallery-status-line"></div>
+        <div class="consent-row">
+          <input type="checkbox" id="gallery-consent-input" disabled>
+          <label for="gallery-consent-input">この写真を、後日一般公開する閲覧用ギャラリーに載せてもよい</label>
+        </div>
+        <div class="note" style="margin-top:-6px; margin-bottom:12px; font-size:11px;">※上のチェックを入れると送信できるようになります</div>
+
+        <button id="gallery-submit-btn" disabled>この写真をギャラリーに送信する</button>
+        <div class="status-line" id="gallery-status-line"></div>
+      </div>
+    </div>
   </div>
 
   <div class="card" style="text-align:center;">
@@ -258,6 +324,11 @@ const previewImg = document.getElementById('preview-img');
 const removePhoto = document.getElementById('remove-photo');
 const consentInput = document.getElementById('consent-input');
 const galleryPhotoDrop = document.getElementById('gallery-photo-drop');
+const galleryToggle = document.getElementById('gallery-toggle');
+const galleryCard = document.querySelector('.gallery-card');
+galleryToggle.addEventListener('click', () => {
+  galleryCard.classList.toggle('open');
+});
 const galleryPhotoInput = document.getElementById('gallery-photo-input');
 const galleryPreviewWrap = document.getElementById('gallery-preview-wrap');
 const galleryPreviewImg = document.getElementById('gallery-preview-img');
