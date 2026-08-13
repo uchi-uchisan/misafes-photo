@@ -116,13 +116,62 @@
     flex-shrink:0;
     transition:transform 0.25s;
   }
-  .gallery-card.open .gallery-toggle-arrow{ transform:rotate(180deg); }
+  .gallery-card.open .gallery-toggle-arrow,
+  .draw-card.open .gallery-toggle-arrow{ transform:rotate(180deg); }
   .gallery-content{
     max-height:0;
     overflow:hidden;
     transition:max-height 0.35s ease;
   }
-  .gallery-card.open .gallery-content{ max-height:2000px; }
+  .gallery-card.open .gallery-content,
+  .draw-card.open .gallery-content{ max-height:2000px; }
+
+  #draw-toolbar{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-bottom:10px;
+  }
+  #draw-color-row{
+    display:flex;
+    gap:6px;
+    flex-wrap:wrap;
+    flex:1;
+  }
+  .draw-color-opt{
+    width:28px; height:28px;
+    border-radius:50%;
+    border:2px solid rgba(255,255,255,0.8);
+    box-shadow:0 0 0 1.5px rgba(34,36,42,0.25);
+    cursor:pointer;
+  }
+  .draw-color-opt.selected{
+    box-shadow:0 0 0 2.5px var(--gold-deep);
+    transform:scale(1.12);
+  }
+  #draw-undo-btn, #draw-clear-btn{
+    padding:7px 12px;
+    background:#fff;
+    border:1.5px solid rgba(34,36,42,0.2);
+    border-radius:8px;
+    font-size:12px;
+    color:var(--ink);
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  #draw-canvas{
+    display:block;
+    width:100%;
+    aspect-ratio:4/3;
+    background:#fff;
+    border:1.5px solid rgba(34,36,42,0.2);
+    border-radius:8px;
+    touch-action:none;
+    overscroll-behavior:none;
+    margin-bottom:14px;
+    cursor:crosshair;
+  }
 
   textarea, input[type=text]{
     width:100%;
@@ -293,10 +342,54 @@
           <input type="checkbox" id="gallery-consent-input" disabled>
           <label for="gallery-consent-input">この写真を、後日一般公開する閲覧用ギャラリーに載せてもよい</label>
         </div>
-        <div class="note" style="margin-top:-6px; margin-bottom:12px; font-size:11px;">※上のチェックを入れると送信できるようになります</div>
+        <div class="note" style="margin-top:-6px; margin-bottom:12px; font-size:11px;">※上のチェックを入れると送信できるようになります。「いいね」が多く集まった写真は、会場のスライドショーで紹介されることがあります。</div>
 
         <button id="gallery-submit-btn" disabled>この写真をギャラリーに送信する</button>
         <div class="status-line" id="gallery-status-line"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card gallery-card draw-card" style="background:#fff8ea; border-color:var(--lantern); padding:0; overflow:hidden;">
+    <div class="gallery-toggle" id="draw-toggle">
+      <div class="gallery-toggle-icon">✏️</div>
+      <div class="gallery-toggle-text">
+        <div class="gallery-toggle-title">お絵かきを送って、画面の中で動かそう!</div>
+        <div class="gallery-toggle-sub">スマホの画面に直接描いて送ると、会場のスクリーンで動き出します</div>
+      </div>
+      <div class="gallery-toggle-arrow" id="draw-toggle-arrow">▼</div>
+    </div>
+
+    <div class="gallery-content" id="draw-content">
+      <div style="padding:4px 20px 20px;">
+        <div class="note">
+          下の白い画面に、指で絵を描いてください。送ると、<b style="color:var(--gold-deep);">会場のスクリーンの中を、描いた絵がふわふわ動き回ります</b>。
+        </div>
+
+        <div id="draw-toolbar">
+          <div id="draw-color-row">
+            <div class="draw-color-opt selected" data-color="#2a2118" style="background:#2a2118;"></div>
+            <div class="draw-color-opt" data-color="#e8542a" style="background:#e8542a;"></div>
+            <div class="draw-color-opt" data-color="#f2a33c" style="background:#f2a33c;"></div>
+            <div class="draw-color-opt" data-color="#e8d23c" style="background:#e8d23c;"></div>
+            <div class="draw-color-opt" data-color="#4caf6e" style="background:#4caf6e;"></div>
+            <div class="draw-color-opt" data-color="#3c8ce8" style="background:#3c8ce8;"></div>
+            <div class="draw-color-opt" data-color="#8c4ce8" style="background:#8c4ce8;"></div>
+            <div class="draw-color-opt" data-color="#e84ca0" style="background:#e84ca0;"></div>
+          </div>
+          <button type="button" id="draw-undo-btn">↩ 一つ戻す</button>
+          <button type="button" id="draw-clear-btn">🗑 全部消す</button>
+        </div>
+
+        <canvas id="draw-canvas" width="800" height="600"></canvas>
+
+        <div class="consent-row">
+          <input type="checkbox" id="draw-consent-input">
+          <label for="draw-consent-input">この絵を、会場スクリーンに映してもよい</label>
+        </div>
+
+        <button id="draw-submit-btn" disabled>この絵を送信する</button>
+        <div class="status-line" id="draw-status-line"></div>
       </div>
     </div>
   </div>
@@ -338,6 +431,140 @@ const submitBtn = document.getElementById('submit-btn');
 const statusLine = document.getElementById('status-line');
 const gallerySubmitBtn = document.getElementById('gallery-submit-btn');
 const galleryStatusLine = document.getElementById('gallery-status-line');
+
+// ---------- お絵かき機能 ----------
+const drawToggle = document.getElementById('draw-toggle');
+const drawCard = document.querySelector('.draw-card');
+drawToggle.addEventListener('click', () => {
+  drawCard.classList.toggle('open');
+});
+
+const drawCanvas = document.getElementById('draw-canvas');
+const drawCtx = drawCanvas.getContext('2d');
+const drawConsentInput = document.getElementById('draw-consent-input');
+const drawSubmitBtn = document.getElementById('draw-submit-btn');
+const drawStatusLine = document.getElementById('draw-status-line');
+let drawColor = '#2a2118';
+let drawHistory = []; // 「一つ戻す」用に、直前の状態を保存しておく
+let hasDrawnAnything = false;
+
+function fillCanvasWhite_(){
+  drawCtx.fillStyle = '#ffffff';
+  drawCtx.fillRect(0, 0, drawCanvas.width, drawCanvas.height);
+}
+fillCanvasWhite_(); // 最初は真っ白の状態にしておく
+
+function saveDrawHistory_(){
+  drawHistory.push(drawCtx.getImageData(0, 0, drawCanvas.width, drawCanvas.height));
+  if(drawHistory.length > 20) drawHistory.shift(); // 溜まりすぎないよう、直近20手だけ覚えておく
+}
+
+function getCanvasPos_(e){
+  const rect = drawCanvas.getBoundingClientRect();
+  const scaleX = drawCanvas.width / rect.width;
+  const scaleY = drawCanvas.height / rect.height;
+  const point = e.touches ? e.touches[0] : e;
+  return {
+    x: (point.clientX - rect.left) * scaleX,
+    y: (point.clientY - rect.top) * scaleY
+  };
+}
+
+let isDrawing = false;
+let lastPoint = null;
+
+function startDraw_(e){
+  e.preventDefault();
+  saveDrawHistory_();
+  isDrawing = true;
+  lastPoint = getCanvasPos_(e);
+  hasDrawnAnything = true;
+  updateDrawSubmitBtn();
+}
+function moveDraw_(e){
+  e.preventDefault(); // 描いていない時の指の動きでも、必ずスクロールを止める
+  if(!isDrawing) return;
+  const p = getCanvasPos_(e);
+  drawCtx.strokeStyle = drawColor;
+  drawCtx.lineWidth = 14;
+  drawCtx.lineCap = 'round';
+  drawCtx.lineJoin = 'round';
+  drawCtx.beginPath();
+  drawCtx.moveTo(lastPoint.x, lastPoint.y);
+  drawCtx.lineTo(p.x, p.y);
+  drawCtx.stroke();
+  lastPoint = p;
+}
+function endDraw_(){
+  isDrawing = false;
+  lastPoint = null;
+}
+
+drawCanvas.addEventListener('mousedown', startDraw_);
+drawCanvas.addEventListener('mousemove', moveDraw_);
+window.addEventListener('mouseup', endDraw_);
+drawCanvas.addEventListener('touchstart', startDraw_, { passive: false });
+drawCanvas.addEventListener('touchmove', moveDraw_, { passive: false });
+drawCanvas.addEventListener('touchend', endDraw_);
+
+// 念のための二重の安全策:キャンバス側だけでなく、ページ全体レベルでも
+// 「描いている最中の指の動き」によるスクロールを止める
+document.addEventListener('touchmove', (e) => {
+  if(isDrawing) e.preventDefault();
+}, { passive: false });
+
+document.querySelectorAll('.draw-color-opt').forEach(opt => {
+  opt.addEventListener('click', () => {
+    document.querySelectorAll('.draw-color-opt').forEach(o => o.classList.remove('selected'));
+    opt.classList.add('selected');
+    drawColor = opt.dataset.color;
+  });
+});
+
+document.getElementById('draw-undo-btn').addEventListener('click', () => {
+  if(drawHistory.length === 0) return;
+  const last = drawHistory.pop();
+  drawCtx.putImageData(last, 0, 0);
+});
+
+document.getElementById('draw-clear-btn').addEventListener('click', () => {
+  saveDrawHistory_();
+  fillCanvasWhite_();
+  hasDrawnAnything = false;
+  updateDrawSubmitBtn();
+});
+
+function updateDrawSubmitBtn(){
+  drawSubmitBtn.disabled = !(hasDrawnAnything && drawConsentInput.checked);
+}
+drawConsentInput.addEventListener('change', updateDrawSubmitBtn);
+
+drawSubmitBtn.addEventListener('click', async () => {
+  drawSubmitBtn.disabled = true;
+  drawStatusLine.textContent = '送信中…';
+  try{
+    const dataUrl = drawCanvas.toDataURL('image/png');
+    const base64 = dataUrl.split(',')[1];
+    await fetch(SUBMIT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({
+        action: 'submitDrawing',
+        drawingBase64: base64,
+        consent: drawConsentInput.checked
+      })
+    });
+    drawStatusLine.textContent = '✅ 送信しました!ありがとうございます。会場のスクリーンをお楽しみに。';
+    saveDrawHistory_();
+    fillCanvasWhite_();
+    hasDrawnAnything = false;
+    drawConsentInput.checked = false;
+  }catch(err){
+    drawStatusLine.textContent = '送信に失敗しました。電波の良い場所でもう一度お試しください。';
+  }
+  updateDrawSubmitBtn();
+});
 
 let photoDataUrl = null; // リサイズ後のdata URL(base64)
 let photoFileName = 'photo.jpg';
