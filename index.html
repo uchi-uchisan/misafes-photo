@@ -126,6 +126,9 @@
   .gallery-card.open .gallery-content,
   .draw-card.open .gallery-content{ max-height:2000px; }
 
+  /* お絵かき機能は、いったん非表示にしています(また使う時は、この1行を削除してください) */
+  .draw-card{ display:none !important; }
+
   #draw-toolbar{
     display:flex;
     align-items:center;
@@ -209,10 +212,14 @@
 
   .consent-row{
     display:flex; align-items:flex-start; gap:10px;
-    margin-top:6px; margin-bottom:16px;
+    margin-top:10px; margin-bottom:16px;
+    padding:12px 14px;
+    background:rgba(232,84,42,0.08);
+    border:1.5px solid rgba(232,84,42,0.4);
+    border-radius:10px;
   }
-  .consent-row input{ margin-top:3px; flex-shrink:0; }
-  .consent-row label{ font-size:12px; color:rgba(34,36,42,0.75); line-height:1.6; }
+  .consent-row input{ margin-top:3px; flex-shrink:0; width:18px; height:18px; }
+  .consent-row label{ font-size:13.5px; font-weight:700; color:var(--ink); line-height:1.6; }
   .consent-row input:disabled + label{ opacity:0.4; }
 
   #submit-btn, #gallery-submit-btn{
@@ -296,7 +303,7 @@
 
     <div class="consent-row">
       <input type="checkbox" id="consent-input">
-      <label for="consent-input">この写真を、来年以降のみさフェスでの上映や、町内会の広報等で使用してもよい</label>
+      <label for="consent-input">この写真を、来年以降のみさフェスでの公開や、町内会の広報等で使用してもよい</label>
     </div>
 
     <button id="submit-btn">この内容を送信する</button>
@@ -342,7 +349,11 @@
           <input type="checkbox" id="gallery-consent-input" disabled>
           <label for="gallery-consent-input">この写真を、後日一般公開する閲覧用ギャラリーに載せてもよい</label>
         </div>
-        <div class="note" style="margin-top:-6px; margin-bottom:12px; font-size:11px;">※上のチェックを入れると送信できるようになります。「いいね」が多く集まった写真は、会場のスライドショーで紹介されることがあります。</div>
+        <div class="consent-row">
+          <input type="checkbox" id="gallery-consent-future-input" disabled>
+          <label for="gallery-consent-future-input">この写真を、来年以降のみさフェスでの公開や、町内会の広報等で使用してもよい</label>
+        </div>
+        <div class="note" style="margin-top:-6px; margin-bottom:12px; font-size:11px;">※上の2つのチェックを入れると送信できるようになります。「いいね」が多く集まった写真は、会場のスライドショーで紹介されることがあります。</div>
 
         <button id="gallery-submit-btn" disabled>この写真をギャラリーに送信する</button>
         <div class="status-line" id="gallery-status-line"></div>
@@ -427,6 +438,7 @@ const galleryPreviewWrap = document.getElementById('gallery-preview-wrap');
 const galleryPreviewImg = document.getElementById('gallery-preview-img');
 const galleryRemovePhoto = document.getElementById('gallery-remove-photo');
 const galleryConsentInput = document.getElementById('gallery-consent-input');
+const galleryConsentFutureInput = document.getElementById('gallery-consent-future-input');
 const submitBtn = document.getElementById('submit-btn');
 const statusLine = document.getElementById('status-line');
 const gallerySubmitBtn = document.getElementById('gallery-submit-btn');
@@ -646,6 +658,7 @@ galleryPhotoInput.addEventListener('change', () => {
     galleryPreviewImg.src = galleryPhotoDataUrl;
     galleryPreviewWrap.classList.add('show');
     galleryConsentInput.disabled = false;
+    galleryConsentFutureInput.disabled = false;
     updateGallerySubmitBtn();
   });
 });
@@ -655,6 +668,8 @@ galleryRemovePhoto.addEventListener('click', () => {
   galleryPreviewWrap.classList.remove('show');
   galleryConsentInput.checked = false;
   galleryConsentInput.disabled = true;
+  galleryConsentFutureInput.checked = false;
+  galleryConsentFutureInput.disabled = true;
   updateGallerySubmitBtn();
 });
 
@@ -667,11 +682,12 @@ function updateSubmitBtn(){
 messageInput.addEventListener('input', updateSubmitBtn);
 updateSubmitBtn();
 
-// ギャラリー用:写真が選ばれ、かつ同意チェックが入っていれば送信できる
+// ギャラリー用:写真が選ばれ、かつ2つの同意チェックが両方入っていれば送信できる
 function updateGallerySubmitBtn(){
-  gallerySubmitBtn.disabled = !(galleryPhotoDataUrl && galleryConsentInput.checked);
+  gallerySubmitBtn.disabled = !(galleryPhotoDataUrl && galleryConsentInput.checked && galleryConsentFutureInput.checked);
 }
 galleryConsentInput.addEventListener('change', updateGallerySubmitBtn);
+galleryConsentFutureInput.addEventListener('change', updateGallerySubmitBtn);
 updateGallerySubmitBtn();
 
 // ---------- スクリーン用の送信 ----------
@@ -730,7 +746,8 @@ gallerySubmitBtn.addEventListener('click', async () => {
       body: JSON.stringify({
         galleryPhotoBase64: galleryPhotoBase64,
         galleryPhotoName: galleryPhotoFileName,
-        galleryConsent: galleryConsentInput.checked && !!galleryPhotoDataUrl
+        galleryConsent: galleryConsentInput.checked && !!galleryPhotoDataUrl,
+        galleryConsentFuture: galleryConsentFutureInput.checked && !!galleryPhotoDataUrl
       })
     });
     galleryStatusLine.textContent = '送信しました。ありがとうございます!';
@@ -740,6 +757,8 @@ gallerySubmitBtn.addEventListener('click', async () => {
     galleryPreviewWrap.classList.remove('show');
     galleryConsentInput.checked = false;
     galleryConsentInput.disabled = true;
+    galleryConsentFutureInput.checked = false;
+    galleryConsentFutureInput.disabled = true;
   }catch(err){
     galleryStatusLine.textContent = '送信に失敗しました。電波が混み合っている時は、少し時間を置いてからもう一度お試しください';
     galleryStatusLine.classList.add('error');
